@@ -1,0 +1,95 @@
+type Query {
+    allPersons: [Person!]!
+    personById(id: ID!): PersonView
+
+    allRaces: [Race!]!
+    raceById(id: ID!): RaceView
+
+    allTransports: [Transport!]!
+    transportById(id: ID!): TransportView
+}
+
+type Mutation {
+    createPerson(person: PersonInput!): Person!
+    deletePerson(id: ID!): String
+
+    createRace(race: RaceInput!): Race!
+    deleteRace(id: ID!): String
+
+    createTransport(transport: TransportInput!): Transport!
+    deleteTransport(id: ID!): String
+}
+
+type Person {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    phone: String!
+}
+
+type PersonView {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    patronymic: String!
+    email: String!
+    phone: String!
+    raceName: String!
+}
+
+type Race {
+    id: ID!
+    raceName: String!
+    raceDate: String!
+}
+
+type RaceView {
+    id: ID!
+    raceName: String!
+    departure: String!
+    destination: String!
+    raceDate: String!
+    price: Float!
+    phones: [String!]!
+    transportModel: String!
+}
+
+type Transport {
+    id: ID!
+    type: String!
+    model: String!
+}
+
+type TransportView {
+    id: ID!
+    type: String!
+    model: String!
+    capacity: Int!
+    racesName: [String!]!
+}
+
+input PersonInput {
+    firstName: String!
+    lastName: String!
+    patronymic: String!
+    email: String!
+    phone: String!
+    raceName: String!
+}
+
+input RaceInput {
+    raceName: String!
+    departure: String!
+    destination: String!
+    raceDate: String!
+    price: Float!
+    phones: [String!]!
+    transportModel: String!
+}
+
+input TransportInput {
+    type: String!
+    model: String!
+    capacity: Int!
+    racesName: [String!]!
+}
