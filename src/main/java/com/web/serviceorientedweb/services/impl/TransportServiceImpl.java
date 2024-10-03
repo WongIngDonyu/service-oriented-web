@@ -1,10 +1,14 @@
 package com.web.serviceorientedweb.services.impl;
 
+import com.web.serviceorientedweb.models.Race;
 import com.web.serviceorientedweb.models.Transport;
+import com.web.serviceorientedweb.repositories.RaceRepository;
 import com.web.serviceorientedweb.repositories.TransportRepository;
 import com.web.serviceorientedweb.services.TransportService;
 import com.web.serviceorientedweb.services.dtos.TransportDto;
+import com.web.serviceorientedweb.services.dtos.TransportViewDto;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,8 +18,9 @@ import java.util.UUID;
 public class TransportServiceImpl implements TransportService<UUID> {
     private final ModelMapper modelMapper;
     private final TransportRepository transportRepository;
-    public TransportServiceImpl(ModelMapper modelMapper, TransportRepository transportRepository)
-    {this.modelMapper = modelMapper;this.transportRepository = transportRepository;}
+    private final RaceServiceImpl raceService;
+    public TransportServiceImpl(ModelMapper modelMapper, TransportRepository transportRepository, @Lazy RaceServiceImpl raceService)
+    {this.modelMapper = modelMapper;this.transportRepository = transportRepository;this.raceService = raceService;}
     @Override
     public List<Transport> getAllTransports() {
         return transportRepository.findAll();
@@ -27,13 +32,21 @@ public class TransportServiceImpl implements TransportService<UUID> {
     }
 
     @Override
-    public TransportDto createTransport(TransportDto transportDto) {
+    public TransportViewDto createTransport(TransportViewDto transportDto) {
         Transport transport = modelMapper.map(transportDto, Transport.class);
-        return modelMapper.map(transportRepository.saveAndFlush(transport), TransportDto.class);
+        List<Race> races = raceService.findRacesByNames(transportDto.getRacesName());
+        transport.setRaces(races);
+        transport = transportRepository.saveAndFlush(transport);
+        return modelMapper.map(transport, TransportViewDto.class);
     }
 
     @Override
     public void deleteTransport(UUID id) {
         transportRepository.deleteById(id);
+    }
+
+    @Override
+    public Transport getTransportByModel(String model) {
+        return transportRepository.findByModel(model).orElse(null);
     }
 }

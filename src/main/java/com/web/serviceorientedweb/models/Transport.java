@@ -47,7 +47,7 @@ public class Transport extends BaseEnity{
         this.capacity = capacity;
     }
 
-    @OneToMany(mappedBy = "transport", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "transport", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     public List<Race> getRaces() {
         return races;
     }

@@ -3,6 +3,7 @@ package com.web.serviceorientedweb.web;
 import com.web.serviceorientedweb.models.Person;
 import com.web.serviceorientedweb.services.PersonService;
 import com.web.serviceorientedweb.services.dtos.PersonDto;
+import com.web.serviceorientedweb.services.dtos.PersonViewDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
@@ -38,10 +39,10 @@ public class PersonController {
     }
 
     @GetMapping("/{id}")
-    public EntityModel<PersonDto> getPersonById(@PathVariable UUID id) {
+    public EntityModel<PersonViewDto> getPersonById(@PathVariable UUID id) {
         Person person = personService.getPersonById(id);
-        PersonDto personDto = new PersonDto(person.getFirstName(), person.getLastName(), person.getPhone());
-        EntityModel<PersonDto> resource = EntityModel.of(personDto,
+        PersonViewDto personDto = new PersonViewDto(person.getFirstName(), person.getLastName(), person.getPatronymic(), person.getEmail(), person.getPhone(), person.getRace().getRaceName());
+        EntityModel<PersonViewDto> resource = EntityModel.of(personDto,
                 linkTo(methodOn(PersonController.class).getPersonById(person.getId())).withSelfRel(),
                 linkTo(methodOn(PersonController.class).getAllPersons()).withRel("all-persons"));
         List<Person> persons = personService.getAllPersons();
@@ -56,12 +57,14 @@ public class PersonController {
     }
 
     @PostMapping
-    public ResponseEntity<EntityModel<PersonDto>> createPerson(@RequestBody Person person) {
-        Person createdPerson = personService.createPerson(person);
-        PersonDto personDto = new PersonDto(createdPerson.getFirstName(), createdPerson.getLastName(), createdPerson.getPhone());
+    public ResponseEntity<EntityModel<PersonDto>> createPerson(@RequestBody PersonViewDto person) {
+        PersonViewDto createdPerson = personService.createPerson(person);
+        PersonDto personDto = new PersonDto(createdPerson.getFirstName(), createdPerson.getLastName(), createdPerson.getPhone()
+        );
         EntityModel<PersonDto> resource = EntityModel.of(personDto,
                 linkTo(methodOn(PersonController.class).getPersonById(createdPerson.getId())).withSelfRel(),
-                linkTo(methodOn(PersonController.class).getAllPersons()).withRel("all-persons"));
+                linkTo(methodOn(PersonController.class).getAllPersons()).withRel("all-persons")
+        );
         return ResponseEntity.ok(resource);
     }
 

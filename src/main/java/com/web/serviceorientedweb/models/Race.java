@@ -73,7 +73,7 @@ public class Race extends BaseEnity {
         this.price = price;
     }
 
-    @OneToMany(mappedBy = "race", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "race", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     public List<Person> getPersons() {
         return persons;
     }

@@ -1,8 +1,10 @@
 package com.web.serviceorientedweb.web;
 
+import com.web.serviceorientedweb.models.Person;
 import com.web.serviceorientedweb.models.Race;
 import com.web.serviceorientedweb.services.RaceService;
 import com.web.serviceorientedweb.services.dtos.RaceDto;
+import com.web.serviceorientedweb.services.dtos.RaceViewDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
@@ -38,13 +40,16 @@ public class RaceController {
     }
 
     @GetMapping("/{id}")
-    public EntityModel<RaceDto> getRaceById(@PathVariable UUID id) {
+    public EntityModel<RaceViewDto> getRaceById(@PathVariable UUID id) {
         Race race = raceService.getRaceById(id);
-        RaceDto raceDto = new RaceDto(race.getRaceDate(), race.getRaceName());
-        EntityModel<RaceDto> resource = EntityModel.of(raceDto,
+        List<String> phones = new ArrayList<>();
+        for (Person person : race.getPersons()) {
+            phones.add(person.getPhone());
+        }
+        RaceViewDto raceViewDto = new RaceViewDto(race.getRaceName(), race.getDeparture(), race.getDestination(), race.getRaceDate(), race.getPrice(), phones, race.getTransport().getModel());
+        EntityModel<RaceViewDto> resource = EntityModel.of(raceViewDto,
                 linkTo(methodOn(RaceController.class).getRaceById(race.getId())).withSelfRel(),
                 linkTo(methodOn(RaceController.class).getAllRaces()).withRel("all-races"));
-
         List<Race> races = raceService.getAllRaces();
         int raceIndex = races.indexOf(race);
         if (raceIndex < races.size() - 1) {
@@ -57,8 +62,8 @@ public class RaceController {
     }
 
     @PostMapping
-    public EntityModel<RaceDto> createRace(@RequestBody Race race) {
-        Race createdRace = raceService.createRace(race);
+    public EntityModel<RaceDto> createRace(@RequestBody RaceViewDto race) {
+        RaceViewDto  createdRace = raceService.createRace(race);
         RaceDto raceDto = new RaceDto(race.getRaceDate(), race.getRaceName());
         EntityModel<RaceDto> resource = EntityModel.of(raceDto,
                 linkTo(methodOn(RaceController.class).getRaceById(createdRace.getId())).withSelfRel(),

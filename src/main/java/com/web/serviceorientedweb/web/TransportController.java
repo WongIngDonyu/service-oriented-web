@@ -1,8 +1,10 @@
 package com.web.serviceorientedweb.web;
 
+import com.web.serviceorientedweb.models.Race;
 import com.web.serviceorientedweb.models.Transport;
 import com.web.serviceorientedweb.services.TransportService;
 import com.web.serviceorientedweb.services.dtos.TransportDto;
+import com.web.serviceorientedweb.services.dtos.TransportViewDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +30,7 @@ public class TransportController {
         List<Transport> transports = transportService.getAllTransports();
         List<EntityModel<TransportDto>> transportDtos = new ArrayList<>();
         for (Transport transport : transports) {
-            TransportDto transportDto = new TransportDto(transport.getId(),transport.getType(), transport.getModel());
+            TransportDto transportDto = new TransportDto(transport.getType(), transport.getModel());
             EntityModel<TransportDto> resource = EntityModel.of(transportDto,
                     linkTo(methodOn(TransportController.class).getTransportById(transport.getId())).withSelfRel());
             transportDtos.add(resource);
@@ -37,10 +39,14 @@ public class TransportController {
     }
 
     @GetMapping("/{id}")
-    public EntityModel<TransportDto> getTransportById(@PathVariable UUID id) {
+    public EntityModel<TransportViewDto> getTransportById(@PathVariable UUID id) {
         Transport transport = transportService.getTransportById(id);
-        TransportDto transportDto = new TransportDto(transport.getId(),transport.getType(), transport.getModel());
-        EntityModel<TransportDto> resource = EntityModel.of(transportDto,
+        List<String> racesName = new ArrayList<>();
+        for (Race race : transport.getRaces()) {
+            racesName.add(race.getRaceName());
+        }
+        TransportViewDto transportViewDto = new TransportViewDto(transport.getType(),transport.getModel(),transport.getCapacity(),racesName);
+        EntityModel<TransportViewDto> resource = EntityModel.of(transportViewDto,
                 linkTo(methodOn(TransportController.class).getTransportById(transport.getId())).withSelfRel(),
                 linkTo(methodOn(TransportController.class).getAllTransports()).withRel("all-transports"));
         List<Transport> transports = transportService.getAllTransports();
@@ -54,12 +60,15 @@ public class TransportController {
         return resource;
     }
 
+
+
     @PostMapping
-    public EntityModel<TransportDto> createTransport(@RequestBody TransportDto transport) {
-        TransportDto createdTransport = transportService.createTransport(transport);
-        TransportDto transportDto = new TransportDto(transport.getId(), createdTransport.getType(), createdTransport.getModel());
+    public EntityModel<TransportDto> createTransport(@RequestBody TransportViewDto transport) {
+
+        TransportViewDto transportViewDto = transportService.createTransport(transport);
+        TransportDto transportDto = new TransportDto(transportViewDto.getType(), transportViewDto.getModel());
         EntityModel<TransportDto> resource = EntityModel.of(transportDto,
-                linkTo(methodOn(TransportController.class).getTransportById(createdTransport.getId())).withSelfRel(),
+                linkTo(methodOn(TransportController.class).getTransportById(transportViewDto.getId())).withSelfRel(),
                 linkTo(methodOn(TransportController.class).getAllTransports()).withRel("all-transports"));
         return resource;
     }
