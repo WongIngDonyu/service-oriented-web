@@ -64,7 +64,6 @@ public class TransportController {
 
     @PostMapping
     public EntityModel<TransportDto> createTransport(@RequestBody TransportViewDto transport) {
-
         TransportViewDto transportViewDto = transportService.createTransport(transport);
         TransportDto transportDto = new TransportDto(transportViewDto.getType(), transportViewDto.getModel());
         EntityModel<TransportDto> resource = EntityModel.of(transportDto,

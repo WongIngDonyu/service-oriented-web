@@ -18,9 +18,8 @@ import java.util.UUID;
 public class TransportServiceImpl implements TransportService<UUID> {
     private final ModelMapper modelMapper;
     private final TransportRepository transportRepository;
-    private final RaceServiceImpl raceService;
-    public TransportServiceImpl(ModelMapper modelMapper, TransportRepository transportRepository, @Lazy RaceServiceImpl raceService)
-    {this.modelMapper = modelMapper;this.transportRepository = transportRepository;this.raceService = raceService;}
+    public TransportServiceImpl(ModelMapper modelMapper, TransportRepository transportRepository)
+    {this.modelMapper = modelMapper;this.transportRepository = transportRepository;}
     @Override
     public List<Transport> getAllTransports() {
         return transportRepository.findAll();
@@ -34,8 +33,6 @@ public class TransportServiceImpl implements TransportService<UUID> {
     @Override
     public TransportViewDto createTransport(TransportViewDto transportDto) {
         Transport transport = modelMapper.map(transportDto, Transport.class);
-        List<Race> races = raceService.findRacesByNames(transportDto.getRacesName());
-        transport.setRaces(races);
         transport = transportRepository.saveAndFlush(transport);
         return modelMapper.map(transport, TransportViewDto.class);
     }

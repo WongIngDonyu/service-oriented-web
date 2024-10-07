@@ -2,12 +2,9 @@ package com.web.serviceorientedweb.services.impl;
 
 import com.web.serviceorientedweb.models.Person;
 import com.web.serviceorientedweb.repositories.PersonRepository;
-import com.web.serviceorientedweb.repositories.RaceRepository;
-import com.web.serviceorientedweb.repositories.TransportRepository;
 import com.web.serviceorientedweb.services.PersonService;
 import com.web.serviceorientedweb.services.dtos.PersonViewDto;
 import org.modelmapper.ModelMapper;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,7 +16,7 @@ public class PersonServiceImpl implements PersonService<UUID> {
     private final PersonRepository personRepository;
     private final ModelMapper modelMapper;
     private final RaceServiceImpl raceService;
-    public PersonServiceImpl(PersonRepository personRepository, ModelMapper modelMapper, @Lazy RaceServiceImpl raceService) {this.personRepository = personRepository; this.modelMapper = modelMapper; this.raceService = raceService;}
+    public PersonServiceImpl(PersonRepository personRepository, ModelMapper modelMapper, RaceServiceImpl raceService) {this.personRepository = personRepository; this.modelMapper = modelMapper; this.raceService = raceService;}
 
     @Override
     public List<Person> getAllPersons() {
