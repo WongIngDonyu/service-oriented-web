@@ -14,5 +14,4 @@ public interface RaceService <I extends UUID>{
     void deleteRace(UUID id);
     Race findRaceByName(String name);
     String getTransportModelByRaceId(UUID id);
-
 }

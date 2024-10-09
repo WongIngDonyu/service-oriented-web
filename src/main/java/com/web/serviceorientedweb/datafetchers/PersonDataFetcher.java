@@ -47,10 +47,7 @@ public class PersonDataFetcher {
                 (String) personInput.get("raceName")
         );
         PersonViewDto createdPerson = personService.createPerson(newPerson);
-        return new PersonDto(
-                createdPerson.getFirstName(),
-                createdPerson.getLastName(),
-                createdPerson.getPhone()
+        return new PersonDto(createdPerson.getFirstName(), createdPerson.getLastName(), createdPerson.getPhone()
         );
     }
 

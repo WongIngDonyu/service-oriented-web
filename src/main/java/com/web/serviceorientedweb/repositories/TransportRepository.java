@@ -9,5 +9,4 @@ import java.util.UUID;
 
 public interface TransportRepository extends JpaRepository<Transport, UUID> {
     Optional<Transport> findByModel(String model);
-
 }
