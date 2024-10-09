@@ -36,10 +36,9 @@ public class PersonServiceImpl implements PersonService<UUID> {
 
     @Override
     public PersonViewDto createPerson(PersonViewDto person) {
-        Person personEntity = modelMapper.map(person, Person.class);
-        personEntity.setRace(raceService.findRaceByName(person.getRaceName()));
-        personEntity = personRepository.saveAndFlush(personEntity);
-        return modelMapper.map(personEntity, PersonViewDto.class);
+        Person newPerson = modelMapper.map(person, Person.class);
+        newPerson.setRace(raceService.findRaceByName(person.getRaceName()));
+        return modelMapper.map(personRepository.saveAndFlush(newPerson), PersonViewDto.class);
     }
 
     @Override

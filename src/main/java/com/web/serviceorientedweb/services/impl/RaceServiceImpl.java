@@ -38,8 +38,7 @@ public class RaceServiceImpl implements RaceService<UUID> {
     public RaceViewDto createRace(RaceViewDto race) {
         Race newRace = modelMapper.map(race, Race.class);
         newRace.setTransport(transportService.getTransportByModel(race.getModel()));
-        newRace = raceRepository.save(newRace);
-        return modelMapper.map(newRace, RaceViewDto.class);
+        return modelMapper.map(raceRepository.saveAndFlush(newRace), RaceViewDto.class);
     }
 
     @Override

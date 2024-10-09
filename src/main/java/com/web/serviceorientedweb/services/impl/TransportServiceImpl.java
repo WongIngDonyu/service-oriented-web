@@ -34,9 +34,8 @@ public class TransportServiceImpl implements TransportService<UUID> {
 
     @Override
     public TransportViewDto createTransport(TransportViewDto transportDto) {
-        Transport transport = modelMapper.map(transportDto, Transport.class);
-        transport = transportRepository.saveAndFlush(transport);
-        return modelMapper.map(transport, TransportViewDto.class);
+        Transport newTransport = modelMapper.map(transportDto, Transport.class);
+        return modelMapper.map(transportRepository.saveAndFlush(newTransport), TransportViewDto.class);
     }
 
     @Override
