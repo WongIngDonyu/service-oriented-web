@@ -58,7 +58,6 @@ public class Transport extends BaseEnity{
 
     public enum Type {
         Bus(0), Train(1), Plane(2), Ship(3);
-
         int number;
         Type(int number) {
             this.number=number;

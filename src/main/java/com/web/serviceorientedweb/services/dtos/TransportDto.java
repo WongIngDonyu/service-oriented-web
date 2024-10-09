@@ -1,10 +1,13 @@
 package com.web.serviceorientedweb.services.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.web.serviceorientedweb.models.Transport;
 
 import java.util.UUID;
 
 public class TransportDto {
+    @JsonIgnore
+    private UUID id;
     private Transport.Type type;
     private String model;
     public TransportDto(){}
@@ -20,5 +23,9 @@ public class TransportDto {
 
     public String getModel() {
         return model;
+    }
+
+    public UUID getId() {
+        return id;
     }
 }

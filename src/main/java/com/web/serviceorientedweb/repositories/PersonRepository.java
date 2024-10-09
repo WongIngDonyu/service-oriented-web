@@ -8,6 +8,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PersonRepository extends JpaRepository<Person, UUID> {
-    Optional<Person> findByFirstNameAndLastNameAndPatronymic(String firstName, String lastName, String patronymic);
     List<Person> findByPhone(String phoneNumber);
 }

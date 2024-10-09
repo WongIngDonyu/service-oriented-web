@@ -3,29 +3,35 @@ package com.web.serviceorientedweb.services.impl;
 import com.web.serviceorientedweb.models.Person;
 import com.web.serviceorientedweb.repositories.PersonRepository;
 import com.web.serviceorientedweb.services.PersonService;
+import com.web.serviceorientedweb.services.dtos.PersonDto;
 import com.web.serviceorientedweb.services.dtos.PersonViewDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonServiceImpl implements PersonService<UUID> {
     private final PersonRepository personRepository;
     private final ModelMapper modelMapper;
     private final RaceServiceImpl raceService;
-    public PersonServiceImpl(PersonRepository personRepository, ModelMapper modelMapper, RaceServiceImpl raceService) {this.personRepository = personRepository; this.modelMapper = modelMapper; this.raceService = raceService;}
 
-    @Override
-    public List<Person> getAllPersons() {
-        return personRepository.findAll();
+    public PersonServiceImpl(PersonRepository personRepository, ModelMapper modelMapper, RaceServiceImpl raceService) {
+        this.personRepository = personRepository;
+        this.modelMapper = modelMapper;
+        this.raceService = raceService;
     }
 
     @Override
-    public Person getPersonById(UUID id) {
-        return personRepository.findById(id).orElse(null);
+    public List<PersonDto> getAllPersons() {
+        return personRepository.findAll().stream().map(person -> modelMapper.map(person, PersonDto.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public PersonViewDto getPersonById(UUID id) {
+        return modelMapper.map(personRepository.findById(id).orElse(null), PersonViewDto.class);
     }
 
     @Override
@@ -39,19 +45,7 @@ public class PersonServiceImpl implements PersonService<UUID> {
     @Override
     public void deletePerson(UUID id) {
         personRepository.deleteById(id);
-
-    }
-
-    @Override
-    public List<Person> findPersonsByPhones(List<String> phones) {
-        List<Person> foundPersons = new ArrayList<>();
-        for (String phone : phones) {
-            List<Person> persons = personRepository.findByPhone(phone);
-            if (persons != null && !persons.isEmpty()) {
-                foundPersons.addAll(persons);
-            }
-        }
-        return foundPersons;
     }
 
 }
+

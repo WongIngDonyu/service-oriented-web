@@ -1,33 +1,35 @@
 package com.web.serviceorientedweb.services.impl;
 
-import com.web.serviceorientedweb.models.Race;
 import com.web.serviceorientedweb.models.Transport;
-import com.web.serviceorientedweb.repositories.RaceRepository;
 import com.web.serviceorientedweb.repositories.TransportRepository;
 import com.web.serviceorientedweb.services.TransportService;
 import com.web.serviceorientedweb.services.dtos.TransportDto;
 import com.web.serviceorientedweb.services.dtos.TransportViewDto;
 import org.modelmapper.ModelMapper;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TransportServiceImpl implements TransportService<UUID> {
     private final ModelMapper modelMapper;
     private final TransportRepository transportRepository;
-    public TransportServiceImpl(ModelMapper modelMapper, TransportRepository transportRepository)
-    {this.modelMapper = modelMapper;this.transportRepository = transportRepository;}
-    @Override
-    public List<Transport> getAllTransports() {
-        return transportRepository.findAll();
+
+    public TransportServiceImpl(ModelMapper modelMapper, TransportRepository transportRepository) {
+        this.modelMapper = modelMapper;
+        this.transportRepository = transportRepository;
     }
 
     @Override
-    public Transport getTransportById(UUID id) {
-        return transportRepository.findById(id).orElse(null);
+    public List<TransportDto> getAllTransports() {
+        return transportRepository.findAll().stream().map(transport -> modelMapper.map(transport, TransportDto.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public TransportViewDto getTransportById(UUID id) {
+        return modelMapper.map(transportRepository.findById(id).orElse(null), TransportViewDto.class);
     }
 
     @Override

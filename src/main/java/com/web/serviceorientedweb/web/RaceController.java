@@ -1,21 +1,17 @@
 package com.web.serviceorientedweb.web;
 
-import com.web.serviceorientedweb.models.Person;
-import com.web.serviceorientedweb.models.Race;
 import com.web.serviceorientedweb.services.RaceService;
 import com.web.serviceorientedweb.services.dtos.RaceDto;
 import com.web.serviceorientedweb.services.dtos.RaceViewDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/races")
@@ -24,58 +20,61 @@ public class RaceController {
     private RaceService raceService;
 
     @Autowired
-    public void setRaceService(RaceService raceService) {this.raceService = raceService;}
+    public void setRaceService(RaceService raceService) {
+        this.raceService = raceService;
+    }
 
     @GetMapping("/all")
     public List<EntityModel<RaceDto>> getAllRaces() {
-        List<Race> races = raceService.getAllRaces();
-        List<EntityModel<RaceDto>> raceDtos = new ArrayList<>();
-        for (Race race : races) {
-            RaceDto raceDto = new RaceDto(race.getRaceDate(), race.getRaceName());
-            EntityModel<RaceDto> resource = EntityModel.of(raceDto,
-                    linkTo(methodOn(RaceController.class).getRaceById(race.getId())).withSelfRel());
-            raceDtos.add(resource);
+        List<RaceDto> raceDtos = raceService.getAllRaces();
+        List<EntityModel<RaceDto>> entityModels = new ArrayList<>();
+        for (RaceDto raceDto : raceDtos) {
+            EntityModel<RaceDto> entityModel = EntityModel.of(raceDto,
+                    linkTo(methodOn(RaceController.class).getRaceById(raceDto.getId())).withSelfRel());
+            entityModels.add(entityModel);
         }
-        return raceDtos;
+        return entityModels;
     }
 
     @GetMapping("/{id}")
     public EntityModel<RaceViewDto> getRaceById(@PathVariable UUID id) {
-        Race race = raceService.getRaceById(id);
-        List<String> phones = new ArrayList<>();
-        for (Person person : race.getPersons()) {
-            phones.add(person.getPhone());
-        }
-        RaceViewDto raceViewDto = new RaceViewDto(race.getRaceName(), race.getDeparture(), race.getDestination(), race.getRaceDate(), race.getPrice(), phones, race.getTransport().getModel());
-        EntityModel<RaceViewDto> resource = EntityModel.of(raceViewDto,
-                linkTo(methodOn(RaceController.class).getRaceById(race.getId())).withSelfRel(),
+        RaceViewDto raceViewDto = raceService.getRaceById(id);
+        String transportModel = raceService.getTransportModelByRaceId(id);
+        raceViewDto.setModel(transportModel);
+        EntityModel<RaceViewDto> entityModel = EntityModel.of(raceViewDto,
+                linkTo(methodOn(RaceController.class).getRaceById(id)).withSelfRel(),
                 linkTo(methodOn(RaceController.class).getAllRaces()).withRel("all-races"));
-        List<Race> races = raceService.getAllRaces();
-        int raceIndex = races.indexOf(race);
+        List<RaceDto> races = raceService.getAllRaces();
+        int raceIndex = -1;
+        for (int i = 0; i < races.size(); i++) {
+            if (races.get(i).getId().equals(id)) {
+                raceIndex = i;
+                break;
+            }
+        }
         if (raceIndex < races.size() - 1) {
-            resource.add(linkTo(methodOn(RaceController.class).getRaceById(races.get(raceIndex + 1).getId())).withRel("next"));
+            UUID nextRaceId = races.get(raceIndex + 1).getId();
+            entityModel.add(linkTo(methodOn(RaceController.class).getRaceById(nextRaceId)).withRel("next"));
         }
         if (raceIndex > 0) {
-            resource.add(linkTo(methodOn(RaceController.class).getRaceById(races.get(raceIndex - 1).getId())).withRel("previous"));
+            UUID previousRaceId = races.get(raceIndex - 1).getId();
+            entityModel.add(linkTo(methodOn(RaceController.class).getRaceById(previousRaceId)).withRel("previous"));
         }
-        return resource;
+        return entityModel;
     }
 
     @PostMapping
     public EntityModel<RaceDto> createRace(@RequestBody RaceViewDto race) {
-        RaceViewDto  createdRace = raceService.createRace(race);
-        RaceDto raceDto = new RaceDto(race.getRaceDate(), race.getRaceName());
-        EntityModel<RaceDto> resource = EntityModel.of(raceDto,
+        RaceViewDto createdRace = raceService.createRace(race);
+        RaceDto raceDto = new RaceDto(createdRace.getRaceDate(), createdRace.getRaceName());
+        EntityModel<RaceDto> entityModel = EntityModel.of(raceDto,
                 linkTo(methodOn(RaceController.class).getRaceById(createdRace.getId())).withSelfRel(),
                 linkTo(methodOn(RaceController.class).getAllRaces()).withRel("all-races"));
-        return resource;
+        return entityModel;
     }
 
     @DeleteMapping("/{id}")
-    public EntityModel<String> deleteRace(@PathVariable UUID id) {
+    public void deleteRace(@PathVariable UUID id) {
         raceService.deleteRace(id);
-        EntityModel<String> resource = EntityModel.of("Race with ID " + id + " was deleted",
-                linkTo(methodOn(RaceController.class).getAllRaces()).withRel("all-races"));
-        return resource;
     }
 }

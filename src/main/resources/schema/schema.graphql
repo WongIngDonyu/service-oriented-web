@@ -49,9 +49,8 @@ type RaceView {
     departure: String!
     destination: String!
     raceDate: String!
-    price: Float!
-    phones: [String!]!
-    transportModel: String!
+    price: Int!
+    model: String!
 }
 
 type Transport {
@@ -65,7 +64,6 @@ type TransportView {
     type: String!
     model: String!
     capacity: Int!
-    racesName: [String!]!
 }
 
 input PersonInput {
@@ -82,14 +80,12 @@ input RaceInput {
     departure: String!
     destination: String!
     raceDate: String!
-    price: Float!
-    phones: [String!]!
-    transportModel: String!
+    price: Int!
+    model: String!
 }
 
 input TransportInput {
     type: String!
     model: String!
     capacity: Int!
-    racesName: [String!]!
 }

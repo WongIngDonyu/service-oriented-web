@@ -1,11 +1,8 @@
 package com.web.serviceorientedweb.services.dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.web.serviceorientedweb.models.Person;
-import com.web.serviceorientedweb.models.Transport;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 public class RaceViewDto {
@@ -16,17 +13,15 @@ public class RaceViewDto {
     private String destination;
     private Date raceDate;
     private int price;
-    private List<String> phones;
     private String model;
     public RaceViewDto() {}
 
-    public RaceViewDto(String raceName, String departure, String destination, Date raceDate, int price, List<String> phones, String model) {
+    public RaceViewDto(String raceName, String departure, String destination, Date raceDate, int price,String model) {
         this.raceName = raceName;
         this.departure = departure;
         this.destination = destination;
         this.raceDate = raceDate;
         this.price = price;
-        this.phones = phones;
         this.model = model;
     }
 
@@ -50,9 +45,6 @@ public class RaceViewDto {
         return price;
     }
 
-    public List<String> getPhones() {
-        return phones;
-    }
 
     public String getModel() {
         return model;
@@ -63,7 +55,4 @@ public class RaceViewDto {
         this.model = model;
     }
 
-    public void setPhones(List<String> phones) {
-        this.phones = phones;
-    }
 }

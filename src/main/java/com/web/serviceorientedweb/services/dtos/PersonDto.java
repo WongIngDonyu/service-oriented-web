@@ -1,8 +1,12 @@
 package com.web.serviceorientedweb.services.dtos;
 
-import org.springframework.hateoas.RepresentationModel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.UUID;
 
 public class PersonDto {
+    @JsonIgnore
+    private UUID id;
     private String firstName;
     private String lastName;
     private String phone;
@@ -26,4 +30,7 @@ public class PersonDto {
         return phone;
     }
 
+    public UUID getId() {
+        return id;
+    }
 }
