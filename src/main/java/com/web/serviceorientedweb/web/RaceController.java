@@ -3,6 +3,7 @@ package com.web.serviceorientedweb.web;
 import com.web.serviceorientedweb.services.RaceService;
 import com.web.serviceorientedweb.services.dtos.RaceDto;
 import com.web.serviceorientedweb.services.dtos.RaceViewDto;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +18,15 @@ import java.util.UUID;
 @RequestMapping("/api/races")
 public class RaceController {
 
-    private RaceService raceService;
+    private final RaceService raceService;
+    private final RabbitTemplate rabbitTemplate;
+    private final String exchange = "races-exchange";
+    private final String routingKey = "races-routing-key";
 
     @Autowired
-    public void setRaceService(RaceService raceService) {
+    public RaceController(RaceService raceService, RabbitTemplate rabbitTemplate) {
         this.raceService = raceService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @GetMapping("/all")
@@ -67,6 +72,7 @@ public class RaceController {
     public EntityModel<RaceDto> createRace(@RequestBody RaceViewDto race) {
         RaceViewDto createdRace = raceService.createRace(race);
         RaceDto raceDto = new RaceDto(createdRace.getRaceDate(), createdRace.getRaceName());
+        rabbitTemplate.convertAndSend(exchange, routingKey, "Race created: " + createdRace.getId());
         EntityModel<RaceDto> entityModel = EntityModel.of(raceDto,
                 linkTo(methodOn(RaceController.class).getRaceById(createdRace.getId())).withSelfRel(),
                 linkTo(methodOn(RaceController.class).getAllRaces()).withRel("all-races"));
@@ -76,5 +82,7 @@ public class RaceController {
     @DeleteMapping("/{id}")
     public void deleteRace(@PathVariable UUID id) {
         raceService.deleteRace(id);
+        rabbitTemplate.convertAndSend(exchange, routingKey, "Race deleted: " + id);
     }
 }
+

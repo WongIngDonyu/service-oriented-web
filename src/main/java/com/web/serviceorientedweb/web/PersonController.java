@@ -3,6 +3,7 @@ package com.web.serviceorientedweb.web;
 import com.web.serviceorientedweb.services.PersonService;
 import com.web.serviceorientedweb.services.dtos.PersonDto;
 import com.web.serviceorientedweb.services.dtos.PersonViewDto;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +18,16 @@ import java.util.UUID;
 @RequestMapping("/api/persons")
 public class PersonController {
 
-    private PersonService personService;
+    private final PersonService personService;
+    private final RabbitTemplate rabbitTemplate;
+    private final String exchange = "persons-exchange";
+    private final String routingKey = "persons-routing-key";
 
     @Autowired
-    public void setPersonService(PersonService personService) {this.personService = personService;}
+    public PersonController(PersonService personService, RabbitTemplate rabbitTemplate) {
+        this.personService = personService;
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
     @GetMapping("/all")
     public List<EntityModel<PersonDto>> getAllPersons() {
@@ -59,21 +66,20 @@ public class PersonController {
         return entityModel;
     }
 
-
     @PostMapping
     public EntityModel<PersonDto> createPerson(@RequestBody PersonViewDto person) {
         PersonViewDto createdPerson = personService.createPerson(person);
-        PersonDto personDto = new PersonDto(createdPerson.getFirstName(), createdPerson.getLastName(), createdPerson.getPhone()
-        );
+        PersonDto personDto = new PersonDto(createdPerson.getFirstName(), createdPerson.getLastName(), createdPerson.getPhone());
+        rabbitTemplate.convertAndSend(exchange, routingKey, "Person created: " + createdPerson.getId());
         EntityModel<PersonDto> entityModel = EntityModel.of(personDto,
                 linkTo(methodOn(PersonController.class).getPersonById(createdPerson.getId())).withSelfRel(),
-                linkTo(methodOn(PersonController.class).getAllPersons()).withRel("all-persons")
-        );
+                linkTo(methodOn(PersonController.class).getAllPersons()).withRel("all-persons"));
         return entityModel;
     }
 
     @DeleteMapping("/{id}")
-    public void deleteRace(@PathVariable UUID id) {
+    public void deletePerson(@PathVariable UUID id) {
         personService.deletePerson(id);
+        rabbitTemplate.convertAndSend(exchange, routingKey, "Person deleted: " + id);
     }
 }
