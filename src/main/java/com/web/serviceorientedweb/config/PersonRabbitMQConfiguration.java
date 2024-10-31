@@ -7,6 +7,9 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Configuration
 public class PersonRabbitMQConfiguration {
     @Bean
@@ -16,7 +19,9 @@ public class PersonRabbitMQConfiguration {
 
     @Bean
     public Queue personsQueue() {
-        return new Queue("persons-queue");
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-max-priority", 10);
+        return new Queue("persons-queue", true, false, false, args);
     }
 
     @Bean

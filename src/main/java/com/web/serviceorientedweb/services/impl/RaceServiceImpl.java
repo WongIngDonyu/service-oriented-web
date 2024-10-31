@@ -56,4 +56,12 @@ public class RaceServiceImpl implements RaceService<UUID> {
         return raceRepository.findById(id).orElse(null).getTransport().getModel();
     }
 
+    @Override
+    public Integer getAvaibleSeatsByRaceName(String raceName) {
+        Race race = raceRepository.findByRaceName(raceName).orElse(null);
+        int capacity = race.getTransport().getCapacity();
+        int bookedSeats = race.getPersons().size();
+        return bookedSeats - capacity;
+    }
+
 }

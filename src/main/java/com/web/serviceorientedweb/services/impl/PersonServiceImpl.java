@@ -1,6 +1,7 @@
 package com.web.serviceorientedweb.services.impl;
 
 import com.web.serviceorientedweb.models.Person;
+import com.web.serviceorientedweb.models.Race;
 import com.web.serviceorientedweb.repositories.PersonRepository;
 import com.web.serviceorientedweb.services.PersonService;
 import com.web.serviceorientedweb.services.dtos.PersonDto;
@@ -44,6 +45,18 @@ public class PersonServiceImpl implements PersonService<UUID> {
     @Override
     public void deletePerson(UUID id) {
         personRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean changeRace(UUID id, String raceName) {
+        Person person = personRepository.findById(id).orElse(null);
+        Race race = raceService.findRaceByName(raceName);
+        if (raceService.getAvaibleSeatsByRaceName(raceName)>0){
+            person.setRace(race);
+            personRepository.saveAndFlush(person);
+            return true;
+        }
+        return false;
     }
 
 }

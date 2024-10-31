@@ -3,10 +3,15 @@ package com.web.serviceorientedweb.web;
 import com.web.serviceorientedweb.services.PersonService;
 import com.web.serviceorientedweb.services.dtos.PersonDto;
 import com.web.serviceorientedweb.services.dtos.PersonViewDto;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.core.MessagePropertiesBuilder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -70,7 +75,11 @@ public class PersonController {
     public EntityModel<PersonDto> createPerson(@RequestBody PersonViewDto person) {
         PersonViewDto createdPerson = personService.createPerson(person);
         PersonDto personDto = new PersonDto(createdPerson.getFirstName(), createdPerson.getLastName(), createdPerson.getPhone());
-        rabbitTemplate.convertAndSend(exchange, routingKey, "Person created: " + createdPerson.getId());
+        MessageProperties messageProperties = MessagePropertiesBuilder.newInstance()
+                .setPriority(10)
+                .build();
+        Message message = new Message(("Person created: " + createdPerson.getId()).getBytes(), messageProperties);
+        rabbitTemplate.send(exchange, routingKey, message);
         EntityModel<PersonDto> entityModel = EntityModel.of(personDto,
                 linkTo(methodOn(PersonController.class).getPersonById(createdPerson.getId())).withSelfRel(),
                 linkTo(methodOn(PersonController.class).getAllPersons()).withRel("all-persons"));
@@ -80,6 +89,29 @@ public class PersonController {
     @DeleteMapping("/{id}")
     public void deletePerson(@PathVariable UUID id) {
         personService.deletePerson(id);
-        rabbitTemplate.convertAndSend(exchange, routingKey, "Person deleted: " + id);
+        MessageProperties messageProperties = MessagePropertiesBuilder.newInstance()
+                .setPriority(1)
+                .build();
+        Message message = new Message(("Person deleted: " + id).getBytes(), messageProperties);
+        rabbitTemplate.send(exchange, routingKey, message);
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<String> changePersonRace(@PathVariable UUID id, @RequestParam String raceName) {
+        boolean updated = personService.changeRace(id, raceName);
+        if (!updated) {
+            MessageProperties messageProperties = MessagePropertiesBuilder.newInstance()
+                    .setPriority(5)
+                    .build();
+            Message message = new Message(("Race " + raceName + " is full. Cannot add person " + id).getBytes(), messageProperties);
+            rabbitTemplate.send(exchange, routingKey, message);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Race is full. Cannot add person " + id);
+        }
+        MessageProperties messageProperties = MessagePropertiesBuilder.newInstance()
+                .setPriority(6)
+                .build();
+        Message message = new Message(("Race changed successfully for person " + id + " to " + raceName).getBytes(), messageProperties);
+        rabbitTemplate.send(exchange, routingKey, message);
+        return ResponseEntity.ok("Race changed successfully for person " + id);
     }
 }

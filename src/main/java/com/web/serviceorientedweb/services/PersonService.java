@@ -11,4 +11,5 @@ public interface PersonService<I extends UUID> {
     PersonViewDto getPersonById(UUID id);
     PersonViewDto createPerson(PersonViewDto person);
     void deletePerson(UUID id);
+    boolean changeRace(UUID id, String raceName);
 }
