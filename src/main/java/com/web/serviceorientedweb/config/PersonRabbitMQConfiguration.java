@@ -19,14 +19,11 @@ public class PersonRabbitMQConfiguration {
 
     @Bean
     public Queue personsQueue() {
-        Map<String, Object> args = new HashMap<>();
-        args.put("x-max-priority", 10);
-        return new Queue("persons-queue", true, false, false, args);
+        return new Queue("persons-queue");
     }
 
     @Bean
     public Binding personBinding(Queue personsQueue, TopicExchange personsExchange) {
         return BindingBuilder.bind(personsQueue).to(personsExchange).with("persons-routing-key");
     }
-
 }

@@ -6,10 +6,12 @@ import com.web.serviceorientedweb.services.dtos.RaceViewDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -83,6 +85,14 @@ public class RaceController {
     public void deleteRace(@PathVariable UUID id) {
         raceService.deleteRace(id);
         rabbitTemplate.convertAndSend(exchange, routingKey, "Race deleted: " + id);
+    }
+
+    @PostMapping("/{id}/update-time")
+    public ResponseEntity<String> updateRaceTime(@PathVariable UUID id, @RequestBody LocalDateTime newTime) {
+        raceService.updateRaceTime(id, newTime);
+        rabbitTemplate.convertAndSend(exchange, routingKey, "Race time updated: " + id + ", New time: " + newTime);
+        System.out.println("Sending message to queue: Race time updated: " + id + ", New time: " + newTime);
+        return ResponseEntity.ok("Race time updated");
     }
 }
 

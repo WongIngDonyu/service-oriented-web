@@ -9,6 +9,7 @@ import com.web.serviceorientedweb.repositories.TransportRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -42,16 +43,16 @@ public class DataInitializer implements CommandLineRunner {
         Transport transport5 = new Transport(Transport.Type.Ship, "Airbus A320", 150, null);
         transportRepository.saveAll(Arrays.asList(transport1, transport2, transport3, transport4, transport5));
         List<Race> races = Arrays.asList(
-                new Race("Mountain Adventure", "Denver", "Aspen", new Date(), 120, new ArrayList<>(), transport1),
-                new Race("Beach Getaway", "Miami", "Key West", new Date(), 150, new ArrayList<>(), transport2),
-                new Race("City Escape", "New York", "Philadelphia", new Date(), 200, new ArrayList<>(), transport3),
-                new Race("Island Hop", "Honolulu", "Maui", new Date(), 350, new ArrayList<>(), transport4),
-                new Race("Cultural Tour", "Berlin", "Prague", new Date(), 180, new ArrayList<>(), transport5),
-                new Race("Nature Walk", "Seattle", "Olympic National Park", new Date(), 90, new ArrayList<>(), transport1),
-                new Race("Desert Journey", "Phoenix", "Grand Canyon", new Date(), 220, new ArrayList<>(), transport2),
-                new Race("European Express", "Paris", "Amsterdam", new Date(), 300, new ArrayList<>(), transport3),
-                new Race("Safari Adventure", "Johannesburg", "Kruger National Park", new Date(), 400, new ArrayList<>(), transport4),
-                new Race("Northern Lights Tour", "Reykjavik", "Akureyri", new Date(), 250, new ArrayList<>(), transport5)
+                new Race("Mountain Adventure", "Denver", "Aspen", LocalDateTime.now(), 120, new ArrayList<>(), transport1),
+                new Race("Beach Getaway", "Miami", "Key West", LocalDateTime.now(), 150, new ArrayList<>(), transport2),
+                new Race("City Escape", "New York", "Philadelphia", LocalDateTime.now(), 200, new ArrayList<>(), transport3),
+                new Race("Island Hop", "Honolulu", "Maui", LocalDateTime.now(), 350, new ArrayList<>(), transport4),
+                new Race("Cultural Tour", "Berlin", "Prague", LocalDateTime.now(), 180, new ArrayList<>(), transport5),
+                new Race("Nature Walk", "Seattle", "Olympic National Park", LocalDateTime.now(), 90, new ArrayList<>(), transport1),
+                new Race("Desert Journey", "Phoenix", "Grand Canyon", LocalDateTime.now(), 220, new ArrayList<>(), transport2),
+                new Race("European Express", "Paris", "Amsterdam", LocalDateTime.now(), 300, new ArrayList<>(), transport3),
+                new Race("Safari Adventure", "Johannesburg", "Kruger National Park", LocalDateTime.now(), 400, new ArrayList<>(), transport4),
+                new Race("Northern Lights Tour", "Reykjavik", "Akureyri", LocalDateTime.now(), 250, new ArrayList<>(), transport5)
         );
         raceRepository.saveAll(races);
         List<Person> persons = Arrays.asList(

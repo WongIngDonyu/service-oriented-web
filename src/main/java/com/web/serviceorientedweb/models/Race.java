@@ -2,6 +2,7 @@ package com.web.serviceorientedweb.models;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -11,14 +12,14 @@ public class Race extends BaseEnity {
     private String raceName;
     private String departure;
     private String destination;
-    private Date raceDate;
+    private LocalDateTime raceDate;
     private int price;
     private List<Person> persons;
     private Transport transport;
 
     public Race() {}
 
-    public Race(String raceName, String departure, String destination, Date raceDate, int price, List<Person> persons, Transport transport) {
+    public Race(String raceName, String departure, String destination, LocalDateTime raceDate, int price, List<Person> persons, Transport transport) {
         this.raceName = raceName;
         this.departure = departure;
         this.destination = destination;
@@ -56,11 +57,11 @@ public class Race extends BaseEnity {
     }
 
     @Column(name = "raceDate")
-    public Date getRaceDate() {
+    public LocalDateTime getRaceDate() {
         return raceDate;
     }
 
-    public void setRaceDate(Date raceDate) {
+    public void setRaceDate(LocalDateTime raceDate) {
         this.raceDate = raceDate;
     }
 

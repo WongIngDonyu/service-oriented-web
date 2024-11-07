@@ -8,6 +8,7 @@ import com.web.serviceorientedweb.services.dtos.RaceViewDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -64,4 +65,10 @@ public class RaceServiceImpl implements RaceService<UUID> {
         return bookedSeats - capacity;
     }
 
+    @Override
+    public void updateRaceTime(UUID id, LocalDateTime newTime) {
+        Race race = raceRepository.findById(id).orElse(null);
+        race.setRaceDate(newTime);
+        raceRepository.save(race);
+    }
 }

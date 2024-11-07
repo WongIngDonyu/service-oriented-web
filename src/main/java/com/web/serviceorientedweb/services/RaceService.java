@@ -4,6 +4,7 @@ import com.web.serviceorientedweb.models.Race;
 import com.web.serviceorientedweb.services.dtos.RaceDto;
 import com.web.serviceorientedweb.services.dtos.RaceViewDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,4 +16,5 @@ public interface RaceService <I extends UUID>{
     Race findRaceByName(String name);
     String getTransportModelByRaceId(UUID id);
     Integer getAvaibleSeatsByRaceName(String raceName);
+    void updateRaceTime(UUID id, LocalDateTime newTime);
 }
