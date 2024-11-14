@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package com.web.serviceorientedweb.grpc;
+
+service RaceValidation {
+  rpc ValidateRaceTime (RaceTimeRequest) returns (RaceTimeResponse);
+}
+
+message RaceTimeRequest {
+  int64 currentTime = 1;
+  int64 newTime = 2;
+}
+
+message RaceTimeResponse {
+  bool isValid = 1;
+  string message = 2;
+}
