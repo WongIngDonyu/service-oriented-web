@@ -1,98 +1,101 @@
 package com.web.serviceorientedweb.web;
 
 import com.web.serviceorientedweb.services.RaceService;
-import com.web.serviceorientedweb.services.dtos.RaceDto;
-import com.web.serviceorientedweb.services.dtos.RaceViewDto;
+import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import org.springframework.web.bind.annotation.RestController;
+import org.web.transportapi.controllers.RaceApi;
+import org.web.transportapi.dto.RaceDto;
+import org.web.transportapi.dto.RaceViewDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
-@RequestMapping("/api/races")
-public class RaceController {
+public class RaceController implements RaceApi {
 
     private final RaceService raceService;
     private final RabbitTemplate rabbitTemplate;
+    private final ModelMapper modelMapper;
     private final String exchange = "races-exchange";
     private final String routingKey = "races-routing-key";
 
-    @Autowired
-    public RaceController(RaceService raceService, RabbitTemplate rabbitTemplate) {
+    public RaceController(RaceService raceService, RabbitTemplate rabbitTemplate, ModelMapper modelMapper) {
         this.raceService = raceService;
         this.rabbitTemplate = rabbitTemplate;
+        this.modelMapper = modelMapper;
     }
 
-    @GetMapping("/all")
+    @Override
     public List<EntityModel<RaceDto>> getAllRaces() {
-        List<RaceDto> raceDtos = raceService.getAllRaces();
-        List<EntityModel<RaceDto>> entityModels = new ArrayList<>();
-        for (RaceDto raceDto : raceDtos) {
+        List<com.web.serviceorientedweb.services.dtos.RaceDto> serviceRaceDtos = raceService.getAllRaces();
+        List<EntityModel<RaceDto>> raceModels = new ArrayList<>();
+        for (com.web.serviceorientedweb.services.dtos.RaceDto serviceDto : serviceRaceDtos) {
+            RaceDto raceDto = modelMapper.map(serviceDto, RaceDto.class);
             EntityModel<RaceDto> entityModel = EntityModel.of(raceDto,
-                    linkTo(methodOn(RaceController.class).getRaceById(raceDto.getId())).withSelfRel());
-            entityModels.add(entityModel);
+                    linkTo(methodOn(RaceController.class).getRaceById(serviceDto.getId())).withSelfRel(),
+                    linkTo(methodOn(RaceController.class).getAllRaces()).withRel("all-races"));
+            raceModels.add(entityModel);
         }
-        return entityModels;
+
+        return raceModels;
     }
 
-    @GetMapping("/{id}")
-    public EntityModel<RaceViewDto> getRaceById(@PathVariable UUID id) {
-        RaceViewDto raceViewDto = raceService.getRaceById(id);
-        String transportModel = raceService.getTransportModelByRaceId(id);
-        raceViewDto.setModel(transportModel);
-        EntityModel<RaceViewDto> entityModel = EntityModel.of(raceViewDto,
-                linkTo(methodOn(RaceController.class).getRaceById(id)).withSelfRel(),
-                linkTo(methodOn(RaceController.class).getAllRaces()).withRel("all-races"));
-        List<RaceDto> races = raceService.getAllRaces();
-        int raceIndex = -1;
-        for (int i = 0; i < races.size(); i++) {
-            if (races.get(i).getId().equals(id)) {
-                raceIndex = i;
+    @Override
+    public EntityModel<RaceViewDto> getRaceById(UUID id) {
+        com.web.serviceorientedweb.services.dtos.RaceViewDto serviceRaceViewDto = raceService.getRaceById(id);
+        RaceViewDto raceViewDto = modelMapper.map(serviceRaceViewDto, RaceViewDto.class);
+        List<com.web.serviceorientedweb.services.dtos.RaceDto> allRaces = raceService.getAllRaces();
+        int currentIndex = -1;
+        for (int i = 0; i < allRaces.size(); i++) {
+            if (allRaces.get(i).getId().equals(id)) {
+                currentIndex = i;
                 break;
             }
         }
-        if (raceIndex < races.size() - 1) {
-            UUID nextRaceId = races.get(raceIndex + 1).getId();
-            entityModel.add(linkTo(methodOn(RaceController.class).getRaceById(nextRaceId)).withRel("next"));
-        }
-        if (raceIndex > 0) {
-            UUID previousRaceId = races.get(raceIndex - 1).getId();
-            entityModel.add(linkTo(methodOn(RaceController.class).getRaceById(previousRaceId)).withRel("previous"));
-        }
-        return entityModel;
-    }
-
-    @PostMapping
-    public EntityModel<RaceDto> createRace(@RequestBody RaceViewDto race) {
-        RaceViewDto createdRace = raceService.createRace(race);
-        RaceDto raceDto = new RaceDto(createdRace.getRaceDate(), createdRace.getRaceName());
-        rabbitTemplate.convertAndSend(exchange, routingKey, "Race created: " + createdRace.getId());
-        EntityModel<RaceDto> entityModel = EntityModel.of(raceDto,
-                linkTo(methodOn(RaceController.class).getRaceById(createdRace.getId())).withSelfRel(),
+        EntityModel<RaceViewDto> entityModel = EntityModel.of(raceViewDto,
+                linkTo(methodOn(RaceController.class).getRaceById(id)).withSelfRel(),
                 linkTo(methodOn(RaceController.class).getAllRaces()).withRel("all-races"));
+        if (currentIndex > 0) {
+            UUID previousId = allRaces.get(currentIndex - 1).getId();
+            entityModel.add(linkTo(methodOn(RaceController.class).getRaceById(previousId)).withRel("previous"));
+        }
+        if (currentIndex < allRaces.size() - 1) {
+            UUID nextId = allRaces.get(currentIndex + 1).getId();
+            entityModel.add(linkTo(methodOn(RaceController.class).getRaceById(nextId)).withRel("next"));
+        }
+
         return entityModel;
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteRace(@PathVariable UUID id) {
+    @Override
+    public EntityModel<RaceViewDto> createRace(RaceViewDto race) {
+        com.web.serviceorientedweb.services.dtos.RaceViewDto serviceRaceViewDto = modelMapper.map(race, com.web.serviceorientedweb.services.dtos.RaceViewDto.class);
+        com.web.serviceorientedweb.services.dtos.RaceViewDto createdServiceRace = raceService.createRace(serviceRaceViewDto);
+        rabbitTemplate.convertAndSend(exchange, routingKey, "Race created: " + createdServiceRace.getId());
+        RaceViewDto createdRace = modelMapper.map(createdServiceRace, RaceViewDto.class);
+        return EntityModel.of(createdRace,
+                linkTo(methodOn(RaceController.class).getRaceById(createdServiceRace.getId())).withSelfRel(),
+                linkTo(methodOn(RaceController.class).getAllRaces()).withRel("all-races"));
+    }
+
+    @Override
+    public void deleteRace(UUID id) {
         raceService.deleteRace(id);
         rabbitTemplate.convertAndSend(exchange, routingKey, "Race deleted: " + id);
     }
 
-    @PostMapping("/{id}/update-time")
-    public ResponseEntity<String> updateRaceTime(@PathVariable UUID id, @RequestBody LocalDateTime newTime) {
-        raceService.updateRaceTime(id, newTime);
+    @Override
+    public ResponseEntity<String> updateRaceTime(UUID id, String newTime) {
+        raceService.updateRaceTime(id, LocalDateTime.parse(newTime));
         rabbitTemplate.convertAndSend(exchange, routingKey, "Race time updated: " + id + ", New time: " + newTime);
-        System.out.println("Sending message to queue: Race time updated: " + id + ", New time: " + newTime);
         return ResponseEntity.ok("Race time updated");
     }
 }
-
