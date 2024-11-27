@@ -3,8 +3,8 @@ package com.web.serviceorientedweb.services.impl;
 import com.web.serviceorientedweb.models.Transport;
 import com.web.serviceorientedweb.repositories.TransportRepository;
 import com.web.serviceorientedweb.services.TransportService;
-import com.web.serviceorientedweb.services.dtos.TransportDto;
-import com.web.serviceorientedweb.services.dtos.TransportViewDto;
+import org.web.transportapi.dto.TransportDto;
+import org.web.transportapi.dto.TransportViewDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,8 @@
 package com.web.serviceorientedweb.services;
 
 import com.web.serviceorientedweb.models.Race;
-import com.web.serviceorientedweb.services.dtos.RaceDto;
-import com.web.serviceorientedweb.services.dtos.RaceViewDto;
+import org.web.transportapi.dto.RaceDto;
+import org.web.transportapi.dto.RaceViewDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

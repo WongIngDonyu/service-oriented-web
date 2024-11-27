@@ -5,8 +5,8 @@ import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.web.serviceorientedweb.models.Transport;
 import com.web.serviceorientedweb.services.TransportService;
-import com.web.serviceorientedweb.services.dtos.TransportDto;
-import com.web.serviceorientedweb.services.dtos.TransportViewDto;
+import org.web.transportapi.dto.TransportDto;
+import org.web.transportapi.dto.TransportViewDto;
 import graphql.schema.DataFetchingEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,7 +39,8 @@ public class TransportDataFetcher {
     public TransportDto createTransport(DataFetchingEnvironment dataFetchingEnvironment) {
         Map<String, Object> transportInput = dataFetchingEnvironment.getArgument("transport");
         TransportViewDto newTransport = new TransportViewDto(
-                Transport.Type.valueOf((String) transportInput.get("type")),
+                TransportDto.Type.valueOf((String) transportInput.get("type")),
+                //Transport.Type.valueOf((String) transportInput.get("type")),
                 (String) transportInput.get("model"),
                 (Integer) transportInput.get("capacity")
         );

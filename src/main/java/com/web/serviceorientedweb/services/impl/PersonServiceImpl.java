@@ -4,8 +4,8 @@ import com.web.serviceorientedweb.models.Person;
 import com.web.serviceorientedweb.models.Race;
 import com.web.serviceorientedweb.repositories.PersonRepository;
 import com.web.serviceorientedweb.services.PersonService;
-import com.web.serviceorientedweb.services.dtos.PersonDto;
-import com.web.serviceorientedweb.services.dtos.PersonViewDto;
+import org.web.transportapi.dto.PersonDto;
+import org.web.transportapi.dto.PersonViewDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 

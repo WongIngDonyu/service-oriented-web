@@ -4,8 +4,8 @@ import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.web.serviceorientedweb.services.PersonService;
-import com.web.serviceorientedweb.services.dtos.PersonDto;
-import com.web.serviceorientedweb.services.dtos.PersonViewDto;
+import org.web.transportapi.dto.PersonDto;
+import org.web.transportapi.dto.PersonViewDto;
 import graphql.schema.DataFetchingEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -1,7 +1,7 @@
 package com.web.serviceorientedweb.services;
 
-import com.web.serviceorientedweb.services.dtos.PersonDto;
-import com.web.serviceorientedweb.services.dtos.PersonViewDto;
+import org.web.transportapi.dto.PersonDto;
+import org.web.transportapi.dto.PersonViewDto;
 
 import java.util.List;
 import java.util.UUID;

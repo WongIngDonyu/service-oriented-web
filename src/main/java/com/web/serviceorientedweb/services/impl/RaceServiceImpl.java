@@ -3,8 +3,8 @@ package com.web.serviceorientedweb.services.impl;
 import com.web.serviceorientedweb.models.Race;
 import com.web.serviceorientedweb.repositories.RaceRepository;
 import com.web.serviceorientedweb.services.RaceService;
-import com.web.serviceorientedweb.services.dtos.RaceDto;
-import com.web.serviceorientedweb.services.dtos.RaceViewDto;
+import org.web.transportapi.dto.RaceDto;
+import org.web.transportapi.dto.RaceViewDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 

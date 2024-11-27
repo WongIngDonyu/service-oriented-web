@@ -1,7 +1,7 @@
 package com.web.serviceorientedweb.config;
 
 import com.web.serviceorientedweb.models.Race;
-import com.web.serviceorientedweb.services.dtos.RaceViewDto;
+import org.web.transportapi.dto.RaceViewDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

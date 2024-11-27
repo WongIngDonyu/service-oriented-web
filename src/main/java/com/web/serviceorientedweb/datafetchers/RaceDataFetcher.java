@@ -4,8 +4,8 @@ import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.web.serviceorientedweb.services.RaceService;
-import com.web.serviceorientedweb.services.dtos.RaceDto;
-import com.web.serviceorientedweb.services.dtos.RaceViewDto;
+import org.web.transportapi.dto.RaceDto;
+import org.web.transportapi.dto.RaceViewDto;
 import graphql.schema.DataFetchingEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 

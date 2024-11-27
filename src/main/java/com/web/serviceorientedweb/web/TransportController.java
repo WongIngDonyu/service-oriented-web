@@ -1,73 +1,81 @@
 package com.web.serviceorientedweb.web;
 
 import com.web.serviceorientedweb.services.TransportService;
-import org.modelmapper.ModelMapper;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.web.bind.annotation.RestController;
-import org.web.transportapi.controllers.TransportApi;
 import org.web.transportapi.dto.TransportDto;
 import org.web.transportapi.dto.TransportViewDto;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.web.bind.annotation.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 @RestController
-public class TransportController implements TransportApi {
-
+@RequestMapping("/api/transports")
+public class TransportController {
     private final TransportService transportService;
     private final RabbitTemplate rabbitTemplate;
-    private final ModelMapper modelMapper;
     private final String exchange = "transports-exchange";
     private final String routingKey = "transports-routing-key";
-
-    public TransportController(TransportService transportService, RabbitTemplate rabbitTemplate, ModelMapper modelMapper) {
+    public TransportController(TransportService transportService, RabbitTemplate rabbitTemplate) {
         this.transportService = transportService;
         this.rabbitTemplate = rabbitTemplate;
-        this.modelMapper = modelMapper;
     }
-
-    @Override
+    @GetMapping("/all")
     public List<EntityModel<TransportDto>> getAllTransports() {
-        List<com.web.serviceorientedweb.services.dtos.TransportDto> serviceTransportDtos = transportService.getAllTransports();
-        List<EntityModel<TransportDto>> transportModels = new ArrayList<>();
-        for (com.web.serviceorientedweb.services.dtos.TransportDto serviceDto : serviceTransportDtos) {
-            TransportDto transportDto = modelMapper.map(serviceDto, TransportDto.class);
+        List<TransportDto> transportDtos = transportService.getAllTransports();
+        List<EntityModel<TransportDto>> entityModels = new ArrayList<>();
+        for (TransportDto transportDto : transportDtos) {
             EntityModel<TransportDto> entityModel = EntityModel.of(transportDto,
-                    linkTo(methodOn(TransportController.class).getTransportById(serviceDto.getId())).withSelfRel(),
-                    linkTo(methodOn(TransportController.class).getAllTransports()).withRel("all-transports"));
-            transportModels.add(entityModel);
+                    linkTo(methodOn(TransportController.class).getTransportById(transportDto.getId())).withSelfRel());
+            entityModels.add(entityModel);
         }
-
-        return transportModels;
+        return entityModels;
     }
 
-    @Override
-    public EntityModel<TransportViewDto> getTransportById(UUID id) {
-        com.web.serviceorientedweb.services.dtos.TransportViewDto serviceTransportViewDto = transportService.getTransportById(id);
-        TransportViewDto transportViewDto = modelMapper.map(serviceTransportViewDto, TransportViewDto.class);
-        return EntityModel.of(transportViewDto,
+    @GetMapping("/{id}")
+    public EntityModel<TransportViewDto> getTransportById(@PathVariable UUID id) {
+        TransportViewDto transportViewDto = transportService.getTransportById(id);
+        EntityModel<TransportViewDto> entityModel = EntityModel.of(transportViewDto,
                 linkTo(methodOn(TransportController.class).getTransportById(id)).withSelfRel(),
                 linkTo(methodOn(TransportController.class).getAllTransports()).withRel("all-transports"));
+        List<TransportDto> transports = transportService.getAllTransports();
+        int transportIndex = -1;
+        for (int i = 0; i < transports.size(); i++) {
+            if (transports.get(i).getId().equals(id)) {
+                transportIndex = i;
+                break;
+            }
+        }
+        if (transportIndex < transports.size() - 1) {
+            UUID nextId = transports.get(transportIndex + 1).getId();
+            entityModel.add(linkTo(methodOn(TransportController.class).getTransportById(nextId)).withRel("next"));
+        }
+        if (transportIndex > 0) {
+            UUID previousId = transports.get(transportIndex - 1).getId();
+            entityModel.add(linkTo(methodOn(TransportController.class).getTransportById(previousId)).withRel("previous"));
+        }
+        return entityModel;
     }
 
-    @Override
-    public EntityModel<TransportViewDto> createTransport(TransportViewDto transport) {
-        com.web.serviceorientedweb.services.dtos.TransportViewDto serviceTransportViewDto = modelMapper.map(transport, com.web.serviceorientedweb.services.dtos.TransportViewDto.class);
-        com.web.serviceorientedweb.services.dtos.TransportViewDto createdServiceTransport = transportService.createTransport(serviceTransportViewDto);
-        rabbitTemplate.convertAndSend(exchange, routingKey, "Transport created: " + createdServiceTransport.getId());
-        TransportViewDto createdTransport = modelMapper.map(createdServiceTransport, TransportViewDto.class);
-        return EntityModel.of(createdTransport,
-                linkTo(methodOn(TransportController.class).getTransportById(createdServiceTransport.getId())).withSelfRel(),
+    @PostMapping
+    public EntityModel<TransportDto> createTransport(@RequestBody TransportViewDto transportViewDto) {
+        TransportViewDto createdTransport = transportService.createTransport(transportViewDto);
+        TransportDto transportDto = new TransportDto(createdTransport.getType(), createdTransport.getModel());
+        rabbitTemplate.convertAndSend(exchange, routingKey, "Transport created: " + createdTransport.getId());
+        EntityModel<TransportDto> entityModel = EntityModel.of(transportDto,
+                linkTo(methodOn(TransportController.class).getTransportById(createdTransport.getId())).withSelfRel(),
                 linkTo(methodOn(TransportController.class).getAllTransports()).withRel("all-transports"));
+
+        return entityModel;
     }
 
-    @Override
-    public void deleteTransport(UUID id) {
+    @DeleteMapping("/{id}")
+    public void deleteTransport(@PathVariable UUID id) {
         transportService.deleteTransport(id);
         rabbitTemplate.convertAndSend(exchange, routingKey, "Transport deleted: " + id);
     }

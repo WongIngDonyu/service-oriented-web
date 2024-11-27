@@ -1,8 +1,8 @@
 package com.web.serviceorientedweb.services;
 
 import com.web.serviceorientedweb.models.Transport;
-import com.web.serviceorientedweb.services.dtos.TransportDto;
-import com.web.serviceorientedweb.services.dtos.TransportViewDto;
+import org.web.transportapi.dto.TransportDto;
+import org.web.transportapi.dto.TransportViewDto;
 
 import java.util.List;
 import java.util.UUID;
