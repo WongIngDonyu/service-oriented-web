@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Notifications</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<h1>Notifications</h1>
+<div id="notifications"></div>
+<script>
+    const socket = new SockJS('http://localhost:8080/ws');
+    const stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        console.log('Connected to WebSocket: ' + frame);
+        stompClient.subscribe('/topic/notifications', function (notification) {
+            const notifications = document.getElementById('notifications');
+            const message = document.createElement('p');
+            message.appendChild(document.createTextNode(notification.body));
+            notifications.appendChild(message);
+        });
+    });
+
+    socket.onclose = function () {
+        console.error('WebSocket connection closed');
+    };
+</script>
+</body>
+</html>

@@ -44,6 +44,7 @@ public class RaceUpdateListener {
                 for (Person person : race.getPersons()) {
                     notificationService.sendNotification(person, "Race " + race.getRaceName() + " time updated to " + newTimeStr);
                 }
+                notificationService.sendBroadcastNotification("Race " + race.getRaceName() + " time updated to " + newTimeStr);
             } else {
                 System.out.println("Invalid race time update for race ID: " + raceId);
             }
