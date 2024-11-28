@@ -1,8 +1,7 @@
-package com.web.serviceorientedweb.services;
+package com.web.serviceorientedweb.grpc;
 
 import com.web.serviceorientedweb.grpc.RaceValidationOuterClass.RaceTimeRequest;
 import com.web.serviceorientedweb.grpc.RaceValidationOuterClass.RaceTimeResponse;
-import com.web.serviceorientedweb.grpc.RaceValidationGrpc;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;

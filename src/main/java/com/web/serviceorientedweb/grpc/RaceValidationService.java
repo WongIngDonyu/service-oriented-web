@@ -1,13 +1,10 @@
-package com.web.serviceorientedweb.services;
+package com.web.serviceorientedweb.grpc;
 
-import com.web.serviceorientedweb.grpc.RaceValidationGrpc;
 import com.web.serviceorientedweb.grpc.RaceValidationOuterClass.RaceTimeRequest;
 import com.web.serviceorientedweb.grpc.RaceValidationOuterClass.RaceTimeResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
 
 @Service
 public class RaceValidationService {

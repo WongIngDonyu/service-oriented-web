@@ -1,11 +1,12 @@
-package com.web.serviceorientedweb.services;
+package com.web.serviceorientedweb.grpc;
 
 import com.web.serviceorientedweb.models.Person;
 import com.web.serviceorientedweb.models.Race;
 import com.web.serviceorientedweb.repositories.RaceRepository;
+import com.web.serviceorientedweb.services.NotificationService;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
