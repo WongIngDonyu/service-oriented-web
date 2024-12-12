@@ -32,7 +32,7 @@ public class RaceUpdateListener {
     public void onRaceUpdate(String message) {
         try {
             String[] messageParts = message.split(", New time: ");
-            UUID raceId = UUID.fromString(messageParts[0].replace("Race time updated: ", "").trim());
+            UUID raceId = UUID.fromString(messageParts[0].replace("Race update request: ", "").trim());
             String newTimeStr = messageParts[1].trim();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             LocalDateTime newDateTime = LocalDateTime.parse(newTimeStr, formatter);
@@ -41,12 +41,15 @@ public class RaceUpdateListener {
             boolean isValid = raceValidationService.validateRaceTime(currentTime, newTime);
             if (isValid) {
                 Race race = raceRepository.findWithPersonsById(raceId).orElseThrow(() -> new IllegalArgumentException("Race not found with ID: " + raceId));
+                race.setRaceDate(newDateTime);
+                raceRepository.save(race);
                 for (Person person : race.getPersons()) {
                     notificationService.sendNotification(person, "Race " + race.getRaceName() + " time updated to " + newTimeStr);
                 }
                 notificationService.sendBroadcastNotification("Race " + race.getRaceName() + " time updated to " + newTimeStr);
+                System.out.println("Race time updated successfully for race ID: " + raceId);
             } else {
-                System.out.println("Invalid race time update for race ID: " + raceId);
+                System.out.println("Invalid race time update for race ID: " + raceId + ". New time must be within 12 hours and greater than the current time.");
             }
         } catch (Exception e) {
             System.err.println("Failed to process message: " + message);

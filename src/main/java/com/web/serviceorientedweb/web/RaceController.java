@@ -1,5 +1,6 @@
 package com.web.serviceorientedweb.web;
 
+import com.web.serviceorientedweb.grpc.RaceValidationService;
 import com.web.serviceorientedweb.services.RaceService;
 import org.web.transportapi.dto.RaceDto;
 import org.web.transportapi.dto.RaceViewDto;
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,11 +27,13 @@ public class RaceController {
     private final RabbitTemplate rabbitTemplate;
     private final String exchange = "races-exchange";
     private final String routingKey = "races-routing-key";
+    private final RaceValidationService raceValidationService;
 
     @Autowired
-    public RaceController(RaceService raceService, RabbitTemplate rabbitTemplate) {
+    public RaceController(RaceService raceService, RabbitTemplate rabbitTemplate, RaceValidationService raceValidationService) {
         this.raceService = raceService;
         this.rabbitTemplate = rabbitTemplate;
+        this.raceValidationService = raceValidationService;
     }
 
     @GetMapping("/all")
@@ -89,9 +94,9 @@ public class RaceController {
 
     @PostMapping("/{id}/update-time")
     public ResponseEntity<String> updateRaceTime(@PathVariable UUID id, @RequestBody LocalDateTime newTime) {
-        raceService.updateRaceTime(id, newTime);
-        rabbitTemplate.convertAndSend(exchange, routingKey, "Race time updated: " + id + ", New time: " + newTime);
-        System.out.println("Sending message to queue: Race time updated: " + id + ", New time: " + newTime);
-        return ResponseEntity.ok("Race time updated");
+        String message = "Race update request: " + id + ", New time: " + newTime;
+        rabbitTemplate.convertAndSend(exchange, routingKey, message);
+        System.out.println("Sent update request to queue: " + message);
+        return ResponseEntity.ok("Race update request submitted");
     }
 }
