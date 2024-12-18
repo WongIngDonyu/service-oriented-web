@@ -1,10 +1,11 @@
 package com.web.serviceorientedweb.web;
 
 import com.web.serviceorientedweb.services.TransportService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.web.transportapi.controllers.TransportApi;
 import org.web.transportapi.dto.TransportDto;
 import org.web.transportapi.dto.TransportViewDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -16,15 +17,19 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/transports")
-public class TransportController {
+public class TransportController implements TransportApi {
+
     private final TransportService transportService;
     private final RabbitTemplate rabbitTemplate;
     private final String exchange = "transports-exchange";
     private final String routingKey = "transports-routing-key";
+
+    @Autowired
     public TransportController(TransportService transportService, RabbitTemplate rabbitTemplate) {
         this.transportService = transportService;
         this.rabbitTemplate = rabbitTemplate;
     }
+
     @GetMapping("/all")
     public List<EntityModel<TransportDto>> getAllTransports() {
         List<TransportDto> transportDtos = transportService.getAllTransports();

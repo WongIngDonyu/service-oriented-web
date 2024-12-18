@@ -1,12 +1,10 @@
 package com.web.serviceorientedweb.web;
 
-import org.web.transportapi.controllers.PersonApi;
 import com.web.serviceorientedweb.services.PersonService;
+import org.web.transportapi.controllers.PersonApi;
 import org.web.transportapi.dto.PersonDto;
 import org.web.transportapi.dto.PersonViewDto;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageProperties;
-import org.springframework.amqp.core.MessagePropertiesBuilder;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
@@ -22,7 +20,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/persons")
-public class PersonController{
+public class PersonController implements PersonApi {
 
     private final PersonService personService;
     private final RabbitTemplate rabbitTemplate;
