@@ -16,7 +16,6 @@ import java.util.UUID;
 
 @Component
 public class RaceUpdateListener {
-
     private final NotificationService notificationService;
     private final RaceRepository raceRepository;
     private final RaceValidationService raceValidationService;
@@ -46,7 +45,7 @@ public class RaceUpdateListener {
                 for (Person person : race.getPersons()) {
                     notificationService.sendNotification(person, "Race " + race.getRaceName() + " time updated to " + newTimeStr);
                 }
-                notificationService.sendBroadcastNotification("Race " + race.getRaceName() + " time updated to " + newTimeStr);
+                notificationService.sendNotificationWebSocket("Race " + race.getRaceName() + " time updated to " + newTimeStr);
                 System.out.println("Race time updated successfully for race ID: " + raceId);
             } else {
                 System.out.println("Invalid race time update for race ID: " + raceId + ". New time must be within 12 hours and greater than the current time.");
@@ -57,3 +56,7 @@ public class RaceUpdateListener {
         }
     }
 }
+
+
+
+

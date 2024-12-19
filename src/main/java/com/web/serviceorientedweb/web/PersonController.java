@@ -70,6 +70,7 @@ public class PersonController implements PersonApi {
         return entityModel;
     }
 
+
     @PostMapping
     public EntityModel<PersonDto> createPerson(@RequestBody PersonViewDto person) {
         PersonViewDto createdPerson = personService.createPerson(person);

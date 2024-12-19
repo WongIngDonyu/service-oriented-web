@@ -18,7 +18,8 @@ public class NotificationService {
         System.out.println("Notification sent to " + person.getFirstName() + ": " + message);
     }
 
-    public void sendBroadcastNotification(String message) {
+    public void sendNotificationWebSocket(String message) {
         messagingTemplate.convertAndSend("/topic/notifications", message);
     }
 }
+
